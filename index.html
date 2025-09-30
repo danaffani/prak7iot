@@ -29,21 +29,30 @@
     <h3>Log:</h3>
     <pre id="output"></pre>
 
-    <script>
-      const API_KEY = "K7Q0Q0BDMI2R331J"; // Write API Key kamu
+<script>
+  const API_KEY = "K7Q0Q0BDMI2R331J"; // Write API Key
+  let lastUpdate = 0;
 
-      async function setLED(field, value) {
-        const url = `https://api.thingspeak.com/update?api_key=${API_KEY}&field${field}=${value}`;
-        try {
-          const r = await fetch(url);
-          const res = await r.text(); // ThingSpeak balikin entry_id (angka)
-          document.getElementById("output").textContent += 
-            `LED${field} set to ${value} → Entry ${res}\n`;
-        } catch (err) {
-          document.getElementById("output").textContent += 
-            `Error: ${err}\n`;
-        }
-      }
-    </script>
+  async function setLED(field, value) {
+    const now = Date.now();
+    if (now - lastUpdate < 15000) {
+      document.getElementById("output").textContent += 
+        `⚠️ Tunggu 15 detik sebelum update lagi!\n`;
+      return;
+    }
+
+    const url = `https://api.thingspeak.com/update?api_key=${API_KEY}&field${field}=${value}`;
+    try {
+      const r = await fetch(url);
+      const res = await r.text(); 
+      document.getElementById("output").textContent += 
+        `LED${field} set to ${value} → Entry ${res}\n`;
+      lastUpdate = now;
+    } catch (err) {
+      document.getElementById("output").textContent += 
+        `Error: ${err}\n`;
+    }
+  }
+</script>
   </body>
 </html>
