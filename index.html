@@ -7,7 +7,9 @@
     <style>
       body { font-family: system-ui, sans-serif; padding: 32px; }
       button { margin: 6px; padding: 10px 20px; font-size: 16px; }
+      button:disabled { background: #ccc; color: #666; }
       pre { background: #f3f3f3; padding: 10px; }
+      #countdown { font-weight: bold; color: red; }
     </style>
   </head>
   <body>
@@ -16,30 +18,27 @@
 
     <div>
       <h2>LED 1</h2>
-      <button onclick="setLED(1,1)">ON</button>
-      <button onclick="setLED(1,0)">OFF</button>
+      <button id="btn1on" onclick="setLED(1,1)">ON</button>
+      <button id="btn1off" onclick="setLED(1,0)">OFF</button>
     </div>
 
     <div>
       <h2>LED 2</h2>
-      <button onclick="setLED(2,1)">ON</button>
-      <button onclick="setLED(2,0)">OFF</button>
+      <button id="btn2on" onclick="setLED(2,1)">ON</button>
+      <button id="btn2off" onclick="setLED(2,0)">OFF</button>
     </div>
 
     <h3>Log:</h3>
     <pre id="output"></pre>
+    <p id="countdown"></p>
 
 <script>
   const API_KEY = "K7Q0Q0BDMI2R331J"; // Write API Key
-  let lastUpdate = 0;
+  let cooldown = false;
+  let timer;
 
   async function setLED(field, value) {
-    const now = Date.now();
-    if (now - lastUpdate < 15000) {
-      document.getElementById("output").textContent += 
-        `⚠️ Tunggu 15 detik sebelum update lagi!\n`;
-      return;
-    }
+    if (cooldown) return; // biar gak double pencet
 
     const url = `https://api.thingspeak.com/update?api_key=${API_KEY}&field${field}=${value}`;
     try {
@@ -47,11 +46,37 @@
       const res = await r.text(); 
       document.getElementById("output").textContent += 
         `LED${field} set to ${value} → Entry ${res}\n`;
-      lastUpdate = now;
+      startCooldown(15); // mulai countdown
     } catch (err) {
       document.getElementById("output").textContent += 
         `Error: ${err}\n`;
     }
+  }
+
+  function startCooldown(seconds) {
+    cooldown = true;
+    disableButtons(true);
+
+    let remaining = seconds;
+    document.getElementById("countdown").textContent = `Tunggu ${remaining} detik`;
+
+    timer = setInterval(() => {
+      remaining--;
+      if (remaining > 0) {
+        document.getElementById("countdown").textContent = `Tunggu ${remaining} detik`;
+      } else {
+        clearInterval(timer);
+        document.getElementById("countdown").textContent = "";
+        disableButtons(false);
+        cooldown = false;
+      }
+    }, 1000);
+  }
+
+  function disableButtons(state) {
+    document.querySelectorAll("button").forEach(btn => {
+      btn.disabled = state;
+    });
   }
 </script>
   </body>
