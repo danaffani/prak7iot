@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ESP8266 + Thingspeak Test</title>
+  </head>
+  <body style="font-family: system-ui, sans-serif; padding: 32px;">
+    <h1>ESP8266 → Thingspeak via Vercel</h1>
+    <p>Halaman ini statis, tapi bisa panggil API Thingspeak.</p>
+
+    <button id="btn">Ambil Data Thingspeak</button>
+    <pre id="output"></pre>
+
+    <script>
+      document.getElementById("btn").onclick = async () => {
+        const r = await fetch(
+          "https://api.thingspeak.com/channels/9/feeds.json?results=2"
+        ); // contoh channel publik
+        const data = await r.json();
+        document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+      };
+    </script>
+  </body>
+</html>
