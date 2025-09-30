@@ -3,22 +3,42 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ESP8266 + Thingspeak Test</title>
+    <title>ESP8266 + Thingspeak Control</title>
   </head>
   <body style="font-family: system-ui, sans-serif; padding: 32px;">
     <h1>ESP8266 → Thingspeak via Vercel</h1>
-    <p>Halaman ini statis, tapi bisa panggil API Thingspeak.</p>
+    <p>Halaman ini bisa <b>ambil data</b> dan <b>kirim perintah ON/OFF</b>.</p>
 
-    <button id="btn">Ambil Data Thingspeak</button>
+    <!-- Bagian kontrol LED -->
+    <h2>Kontrol LED</h2>
+    <p>
+      <b>LED 1:</b>
+      <a href="https://api.thingspeak.com/update?api_key=K7Q0Q0BDMI2R331J&field1=1" target="_blank">ON</a> /
+      <a href="https://api.thingspeak.com/update?api_key=K7Q0Q0BDMI2R331J&field1=0" target="_blank">OFF</a>
+    </p>
+
+    <p>
+      <b>LED 2:</b>
+      <a href="https://api.thingspeak.com/update?api_key=K7Q0Q0BDMI2R331J&field2=1" target="_blank">ON</a> /
+      <a href="https://api.thingspeak.com/update?api_key=K7Q0Q0BDMI2R331J&field2=0" target="_blank">OFF</a>
+    </p>
+
+    <!-- Bagian baca data -->
+    <h2>Ambil Data Thingspeak</h2>
+    <button id="btn">Ambil Data Terbaru</button>
     <pre id="output"></pre>
 
     <script>
       document.getElementById("btn").onclick = async () => {
-        const r = await fetch(
-          "https://api.thingspeak.com/channels/9/feeds.json?results=2"
-        ); // contoh channel publik
+        const url =
+          "https://api.thingspeak.com/channels/3096028/feeds.json?api_key=0GQ0Y8ZFF89XDO6K&results=2";
+        const r = await fetch(url);
         const data = await r.json();
-        document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+        document.getElementById("output").textContent = JSON.stringify(
+          data,
+          null,
+          2
+        );
       };
     </script>
   </body>
