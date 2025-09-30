@@ -3,43 +3,47 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ESP8266 + Thingspeak Control</title>
+    <title>Kontrol LED via ThingSpeak</title>
+    <style>
+      body { font-family: system-ui, sans-serif; padding: 32px; }
+      button { margin: 6px; padding: 10px 20px; font-size: 16px; }
+      pre { background: #f3f3f3; padding: 10px; }
+    </style>
   </head>
-  <body style="font-family: system-ui, sans-serif; padding: 32px;">
-    <h1>ESP8266 → Thingspeak via Vercel</h1>
-    <p>Halaman ini bisa <b>ambil data</b> dan <b>kirim perintah ON/OFF</b>.</p>
+  <body>
+    <h1>Kontrol LED ESP8266 via ThingSpeak</h1>
+    <p>Klik tombol di bawah untuk ON / OFF LED.</p>
 
-    <!-- Bagian kontrol LED -->
-    <h2>Kontrol LED</h2>
-    <p>
-      <b>LED 1:</b>
-      <a href="https://api.thingspeak.com/update?api_key=K7Q0Q0BDMI2R331J&field1=1" target="_blank">ON</a> /
-      <a href="https://api.thingspeak.com/update?api_key=K7Q0Q0BDMI2R331J&field1=0" target="_blank">OFF</a>
-    </p>
+    <div>
+      <h2>LED 1</h2>
+      <button onclick="setLED(1,1)">ON</button>
+      <button onclick="setLED(1,0)">OFF</button>
+    </div>
 
-    <p>
-      <b>LED 2:</b>
-      <a href="https://api.thingspeak.com/update?api_key=K7Q0Q0BDMI2R331J&field2=1" target="_blank">ON</a> /
-      <a href="https://api.thingspeak.com/update?api_key=K7Q0Q0BDMI2R331J&field2=0" target="_blank">OFF</a>
-    </p>
+    <div>
+      <h2>LED 2</h2>
+      <button onclick="setLED(2,1)">ON</button>
+      <button onclick="setLED(2,0)">OFF</button>
+    </div>
 
-    <!-- Bagian baca data -->
-    <h2>Ambil Data Thingspeak</h2>
-    <button id="btn">Ambil Data Terbaru</button>
+    <h3>Log:</h3>
     <pre id="output"></pre>
 
     <script>
-      document.getElementById("btn").onclick = async () => {
-        const url =
-          "https://api.thingspeak.com/channels/3096028/feeds.json?api_key=0GQ0Y8ZFF89XDO6K&results=2";
-        const r = await fetch(url);
-        const data = await r.json();
-        document.getElementById("output").textContent = JSON.stringify(
-          data,
-          null,
-          2
-        );
-      };
+      const API_KEY = "K7Q0Q0BDMI2R331J"; // Write API Key kamu
+
+      async function setLED(field, value) {
+        const url = `https://api.thingspeak.com/update?api_key=${API_KEY}&field${field}=${value}`;
+        try {
+          const r = await fetch(url);
+          const res = await r.text(); // ThingSpeak balikin entry_id (angka)
+          document.getElementById("output").textContent += 
+            `LED${field} set to ${value} → Entry ${res}\n`;
+        } catch (err) {
+          document.getElementById("output").textContent += 
+            `Error: ${err}\n`;
+        }
+      }
     </script>
   </body>
 </html>
